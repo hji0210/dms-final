@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.bulk.domain.mapper.BulkDomainMapper">
+
+    <resultMap type="com.dms.standarddataserver.bulk.domain.dto.DomainExcelDataDTO" id="domainExcelDataMap">
+        <id column="DOM_ID" property="domainId"/>
+        <result column="STD_AREA_ID" property="stdAreaId"/>
+        <result column="KEY_DOM_NM" property="keyDomainName"/>
+        <result column="DOM_NM" property="domainName"/>
+        <result column="DOM_DESC" property="domainDescription"/>
+        <result column="DOM_TYPE_CD" property="domainTypeCode"/>
+        <result column="DOM_GRP_ID" property="domainGroupId"/>
+        <result column="DATA_TYPE_CD" property="dataTypeCode"/>
+        <result column="DATA_LEN" property="dataLength"/>
+        <result column="DATA_SCALE" property="dataScale"/>
+        <result column="DATA_MIN" property="dataMin"/>
+        <result column="DATA_MAX" property="dataMax"/>
+        <result column="AVAL_ST_DT" property="availableStartDate"/>
+        <result column="AVAL_END_DT" property="availableEndDate"/>
+    </resultMap>
+
+    <select id="getRegisteredDomainGroupId" resultType="String">
+        select DOM_GRP_ID
+        from STD_DOM_GRP
+        where DOM_GRP_NM = #{domainGroupName}
+        and STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <select id="isDuplicatedByDomainGroupId" resultType="int">
+        select COUNT(*)
+        from STD_DOM
+        where DOM_NM = #{domainName}
+        and DOM_GRP_ID = #{domainGroupId}
+        and STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <select id="isDuplicated" resultType="int">
+        select COUNT(*)
+        from STD_DOM
+        where DOM_NM = #{domainName}
+        and STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainId" resultType="String">
+        select DOM_ID
+        from STD_DOM
+        where DOM_NM = #{domainName}
+        and DOM_GRP_ID IS NULL
+        and STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainIdWithDomainGroupId" resultType="String">
+        select DOM_ID
+        from STD_DOM
+        where DOM_NM = #{domainName}
+        and DOM_GRP_ID = #{domainGroupId}
+        and STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <select id="selectAllDomain" resultMap="domainExcelDataMap">
+        select *
+        from STD_DOM
+        where STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainByDomainId" resultMap="domainExcelDataMap">
+        select *
+        from STD_DOM
+        where DOM_ID = #{domainId}
+        and STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <select id="findDomainGroupName" resultType="String">
+        select DOM_GRP_NM
+        from STD_DOM_GRP
+        where DOM_GRP_ID = #{domainGroupId}
+        and STD_AREA_ID = #{stdAreaId}
+    </select>
+
+    <insert id="insertBulkDomain" parameterType="com.dms.standarddataserver.bulk.domain.dto.DomainExcelDataDTO">
+        insert into STD_DOM (
+        DOM_ID,
+        STD_AREA_ID,
+        KEY_DOM_NM,
+        DOM_NM,
+        DOM_DESC,
+        DOM_TYPE_CD,
+        DOM_GRP_ID,
+        DATA_TYPE_CD,
+        DATA_LEN,
+        DATA_SCALE,
+        DATA_MIN,
+        DATA_MAX
+        )
+        VALUES (
+        #{domainId, jdbcType=VARCHAR},
+        #{stdAreaId, jdbcType=VARCHAR},
+        #{keyDomainName, jdbcType=VARCHAR},
+        #{domainName, jdbcType=VARCHAR},
+        #{domainDescription, jdbcType=VARCHAR},
+        #{domainTypeCode, jdbcType=VARCHAR},
+        #{domainGroupId, jdbcType=VARCHAR},
+        #{dataTypeCode, jdbcType=VARCHAR},
+        #{dataLength, jdbcType=INTEGER},
+        #{dataScale, jdbcType=INTEGER},
+        #{dataMin, jdbcType=INTEGER},
+        #{dataMax, jdbcType=INTEGER}
+        )
+    </insert>
+</mapper>

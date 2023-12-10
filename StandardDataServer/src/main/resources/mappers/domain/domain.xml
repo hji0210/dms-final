@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.single.domain.mapper.DomainMapper">
+
+    <insert id="insertDomain" parameterType="com.dms.standarddataserver.single.domain.dto.DomainDTO">
+        INSERT INTO STD_DOM (
+          DOM_ID
+        , STD_AREA_ID
+        , KEY_DOM_NM
+        , DOM_NM
+        , DOM_DESC
+        , DOM_TYPE_CD
+        , DOM_GRP_ID
+        , DATA_TYPE_CD
+        , DATA_LEN
+        , DATA_SCALE
+        , DATA_MIN
+        , DATA_MAX
+        ) VALUES (
+          #{domId, jdbcType=VARCHAR}
+        , #{selectStandardArea, jdbcType=VARCHAR}
+        , #{keyDomName, jdbcType=VARCHAR}
+        , #{domName, jdbcType=VARCHAR}
+        , #{domDescription, jdbcType=VARCHAR}
+        , #{domTypeCode, jdbcType=VARCHAR}
+        , #{domGroupId, jdbcType=VARCHAR}
+        , #{dataTypeCode, jdbcType=VARCHAR}
+        , #{dataLen, jdbcType=INTEGER}
+        , #{dataScale, jdbcType=INTEGER}
+        , #{dataMin, jdbcType=INTEGER}
+        , #{dataMax, jdbcType=INTEGER}
+        )
+    </insert>
+
+    <select id="getDomainGroup" resultType="com.dms.standarddataserver.single.domain.dto.DomainGroupDTO">
+        SELECT DOM_GRP_ID  as domGrpId
+             , STD_AREA_ID as stdAreaId
+             , DOM_GRP_NM  as domGrpNm
+             , DOM_GRP_DESC as domGrpDesc
+             , AVAL_ST_DT  as avalStDt
+             , AVAL_END_DT  as avalEndDt
+        FROM STD_DOM_GRP
+    </select>
+
+    <select id="isDuplicateDomain" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS isDuplicate
+        FROM "C##TY"."STD_DOM"
+        WHERE "DOM_NM" = #{domName, jdbcType=VARCHAR}
+    </select>
+
+    <select id="isDuplicateDomainGroup" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS isDuplicate
+        FROM "C##TY"."STD_DOM_GRP"
+        WHERE "DOM_GRP_NM" = #{domGrpName, jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteDomain" parameterType="com.dms.standarddataserver.single.domain.dto.DomainDTO">
+        DELETE FROM STD_DOM
+        WHERE DOM_ID = #{domId}
+    </delete>
+
+</mapper>

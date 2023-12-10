@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.word.mapper.WordMapper">
+
+    <resultMap type="com.dms.standarddataserver.word.dto.WordDTO" id="map">
+        <id column="DIC_ID" property="dicId"/>
+        <result column="STD_AREA_ID" property="stdAreaId"/>
+        <result column="ALT_DIC_ID" property="altDicId"/>
+        <result column="DIC_GBN_CD" property="dicGbnCd"/>
+        <result column="DIC_LOG_NM" property="dicLogNm"/>
+        <result column="DIC_PHY_NM" property="dicPhyNm"/>
+        <result column="DIC_PHY_FLL_NM" property="dicPhyFllNm"/>
+        <result column="DIC_DESC" property="dicDesc"/>
+        <result column="ENT_CLSS_YN" property="entClssYn"/>
+        <result column="ATTR_CLSS_YN" property="attrClssYn"/>
+        <result column="STANDARD_YN" property="standardYn"/>
+        <result column="DOM_ID" property="domId"/>
+        <result column="AVAL_ST_DT" property="avalStDt"/>
+        <result column="AVAL_END_DT" property="avalEndDt"/>
+    </resultMap>
+
+    <insert id="insertWord"  parameterType="com.dms.standarddataserver.word.dto.WordDTO">
+        INSERT INTO STD_DIC (
+        DIC_ID, DIC_LOG_NM, DIC_PHY_NM, DIC_PHY_FLL_NM, DIC_DESC,
+        ENT_CLSS_YN, ATTR_CLSS_YN, DOM_ID, STD_AREA_ID, DIC_GBN_CD
+        )
+        VALUES (
+        #{dicId, jdbcType=VARCHAR}, #{dicLogNm, jdbcType=VARCHAR}, #{dicPhyNm, jdbcType=VARCHAR}, #{dicPhyFllNm, jdbcType=VARCHAR}, #{dicDesc, jdbcType=VARCHAR},
+        #{entClssYn, jdbcType=VARCHAR}, #{attrClssYn, jdbcType=VARCHAR}, #{domId, jdbcType=VARCHAR}, #{stdAreaId, jdbcType=VARCHAR}, #{dicGbnCd, jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="isDuplicate" resultType="boolean" parameterType="com.dms.standarddataserver.word.dto.WordDTO">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS isDuplicate
+        FROM "C##TY"."STD_DIC"
+        WHERE STD_AREA_ID = #{stdAreaId, jdbcType=VARCHAR}
+        AND (DIC_LOG_NM = #{dicLogNm, jdbcType=VARCHAR} OR DIC_PHY_NM = #{dicPhyNm, jdbcType=VARCHAR}
+        )
+    </select>
+
+
+
+
+    <select id="getWordAndTermInfo"  parameterType="com.dms.standarddataserver.word.dto.WordDTO" resultMap="map">
+        SELECT DIC_ID, DIC_LOG_NM, ALT_DIC_ID, DIC_GBN_CD, DIC_PHY_NM, DIC_PHY_FLL_NM, DIC_DESC,
+        ENT_CLSS_YN, ATTR_CLSS_YN, STANDARD_YN, STD_AREA_ID FROM STD_DIC
+        WHERE DIC_ID = #{dicId}
+    </select>
+
+    <update id="updateWord" parameterType="com.dms.standarddataserver.word.dto.WordDTO">
+        UPDATE STD_DIC
+        SET
+        DIC_LOG_NM = #{dicLogNm, jdbcType=VARCHAR},
+        DIC_PHY_NM = #{dicPhyNm, jdbcType=VARCHAR},
+        DIC_PHY_FLL_NM = #{dicPhyFllNm, jdbcType=VARCHAR},
+        DIC_DESC = #{dicDesc, jdbcType=VARCHAR},
+        ENT_CLSS_YN = #{entClssYn, jdbcType=VARCHAR},
+        ATTR_CLSS_YN = #{attrClssYn, jdbcType=VARCHAR}
+        WHERE DIC_ID = #{dicId, jdbcType=VARCHAR}
+    </update>
+
+    <delete id="deleteWordAndTerm">
+        DELETE FROM STD_DIC
+        WHERE DIC_ID = #{deleteDicId}
+    </delete>
+
+
+
+</mapper>

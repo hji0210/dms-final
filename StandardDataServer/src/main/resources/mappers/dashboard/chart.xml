@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dms.standarddataserver.dashboard.mapper.ChartMapper">
+    <resultMap id="chartResultMap" type="com.dms.standarddataserver.dashboard.dto.ChartDTO">
+        <result column="ELEMENT" property="element"/>
+        <result column="COUNT" property="count"/>
+
+    </resultMap>
+    <select id="chartDTOList" resultMap="chartResultMap">
+        <![CDATA[
+        SELECT *
+        FROM (
+            SELECT
+                sub.DIC_LOG_NM AS ELEMENT,
+                COUNT(sub.DIC_LOG_NM) AS COUNT
+            FROM
+                "C##TY"."STD_DIC" main
+            JOIN
+                "C##TY"."STD_DIC" sub ON sub.STD_AREA_ID = main.STD_AREA_ID
+                AND sub.DIC_GBN_CD = 'word'
+                AND main.DIC_LOG_NM LIKE '%' || sub.DIC_LOG_NM || '%'
+            WHERE
+                main.STD_AREA_ID = #{standardAreaId}
+                AND main.DIC_GBN_CD = 'term'
+            GROUP BY
+                sub.DIC_LOG_NM
+
+            UNION
+
+            SELECT
+                'domain' AS ELEMENT,
+                COUNT(DOM_NM) AS COUNT
+            FROM
+                STD_DOM
+            WHERE
+                STD_AREA_ID=#{standardAreaId}
+
+            UNION
+
+            SELECT
+                DIC_GBN_CD AS ELEMENT,
+                COUNT(*) AS COUNT
+            FROM
+                STD_DIC
+            WHERE
+                STD_AREA_ID = #{standardAreaId}
+            GROUP BY
+                DIC_GBN_CD
+        )
+        WHERE ROWNUM <= 8
+        ORDER BY ELEMENT ASC
+        ]]>
+    </select>
+
+</mapper>

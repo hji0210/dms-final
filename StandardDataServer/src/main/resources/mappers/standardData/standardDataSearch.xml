@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.standardData.mapper.StandardDataSearchMapper">
+
+    <resultMap id="standardDataDictionaryDTO" type="com.dms.standarddataserver.standardData.dto.StandardDictionaryDTO">
+        <result column="DIC_ID" property="dicId"/>
+        <result column="STD_AREA_ID" property="stdAreaId"/>
+        <result column="ALT_DIC_ID" property="altDicId"/>
+        <result column="DIC_GBN_CD" property="dicGbnCd"/>
+        <result column="DIC_LOG_NM" property="dicLogNm"/>
+        <result column="DIC_PHY_NM" property="dicPhyNm"/>
+        <result column="DIC_PHY_FLL_NM" property="dicPhyFllNm"/>
+        <result column="DIC_DESC" property="dicDesc"/>
+        <result column="ENT_CLSS_YN" property="entClssYn"/>
+        <result column="ATTR_CLSS_YN" property="attrClssYn"/>
+        <result column="STANDARD_YN" property="standardYn"/>
+        <result column="DOM_ID" property="domId"/>
+        <result column="AVAL_ST_DT" property="avalStDt"/>
+        <result column="AVAL_END_DT" property="avalEndDt"/>
+    </resultMap>
+
+    <select id="searchDictionaryByStandardArea" parameterType="string" resultMap="standardDataDictionaryDTO">
+        SELECT *
+        FROM "C##TY"."STD_DIC"
+        WHERE STD_AREA_ID = #{standardAreaId}
+    </select>
+
+    <select id="checkSynonym" parameterType="com.dms.standarddataserver.standardData.dto.StandardDataDTO"
+            resultMap="standardDataDictionaryDTO">
+        SELECT *
+        FROM "C##TY"."STD_DIC"
+        WHERE ALT_DIC_ID = (
+        SELECT DIC_ID
+        FROM "C##TY"."STD_DIC"
+        WHERE DIC_ID = #{standardDataDTO.synonym}
+        )
+    </select>
+
+    <select id="searchDictionaryDTOByDictionaryId"
+            parameterType="com.dms.standarddataserver.standardData.dto.StandardDataDTO"
+            resultMap="standardDataDictionaryDTO">
+        SELECT *
+        FROM "C##TY"."STD_DIC"
+        WHERE DIC_ID = #{standardDataDTO.synonym}
+    </select>
+
+    <select id="selectDomainGroupByDomainGroupId" parameterType="string" resultType="string">
+        SELECT DOM_GRP_NM
+        FROM "C##TY"."STD_DOM_GRP"
+        WHERE DOM_GRP_ID = #{standardDomainGroupId}
+    </select>
+
+    <select id="selectRelatedTermByLogicalName" parameterType="string" resultType="string">
+        SELECT DIC_LOG_NM
+        FROM "C##TY"."STD_DIC"
+        WHERE DIC_LOG_NM LIKE '%' || #{logicalName} || '%'
+        AND DIC_GBN_CD = 'term'
+        AND STD_AREA_ID = #{standardAreaId}
+    </select>
+    <select id="selectRelatedTermByDomainId" parameterType="string" resultType="string">
+        SELECT DIC_LOG_NM
+        FROM "C##TY"."STD_DIC"
+        WHERE DOM_ID = #{domainId}
+        AND DIC_GBN_CD = 'term'
+        AND STD_AREA_ID = #{standardAreaId}
+    </select>
+
+
+</mapper>

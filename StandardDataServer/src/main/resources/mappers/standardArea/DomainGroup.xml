@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- resources/mapper/StandardAreaInsertMapper.xml -->
+<mapper namespace="com.dms.standarddataserver.standardArea.mapper.DomainGroupAutoMapper">
+    <insert id="insertDomainGroup">
+        INSERT INTO "C##TY"."STD_DOM_GRP" (
+        DOM_GRP_ID,
+        STD_AREA_ID,
+        DOM_GRP_NM,
+        DOM_GRP_DESC
+        )
+        VALUES (
+        #{domainGroupId},
+        #{standardAreaId},
+        'Default DomainGroup Name',
+        '도메인 추가시 기본으로 추가되는 도메인 그룹 입니다.'
+        )
+    </insert>
+</mapper>

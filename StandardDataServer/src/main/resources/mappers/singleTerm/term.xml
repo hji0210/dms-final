@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.dms.standarddataserver.term.mapper.TermMapper">
+
+
+    <resultMap type="com.dms.standarddataserver.word.dto.WordDTO" id="map">
+        <id column="DIC_ID" property="dicId"/>
+        <result column="STD_AREA_ID" property="stdAreaId"/>
+        <result column="ALT_DIC_ID" property="altDicId"/>
+        <result column="DIC_GBN_CD" property="dicGbnCd"/>
+        <result column="DIC_LOG_NM" property="dicLogNm"/>
+        <result column="DIC_PHY_NM" property="dicPhyNm"/>
+        <result column="DIC_PHY_FLL_NM" property="dicPhyFllNm"/>
+        <result column="DIC_DESC" property="dicDesc"/>
+        <result column="ENT_CLSS_YN" property="entClssYn"/>
+        <result column="ATTR_CLSS_YN" property="attrClssYn"/>
+        <result column="STANDARD_YN" property="standardYn"/>
+        <result column="DOM_ID" property="domId"/>
+        <result column="AVAL_ST_DT" property="avalStDt"/>
+        <result column="AVAL_END_DT" property="avalEndDt"/>
+    </resultMap>
+
+    <select id="selectWordList" resultMap="map">
+        <!-- 1. 검색어와 일치하는 단어가 있는지 확인 후 조회 -->
+        SELECT DIC_ID, DIC_LOG_NM, DIC_PHY_NM, DIC_PHY_FLL_NM, DIC_GBN_CD, ENT_CLSS_YN, ATTR_CLSS_YN, DIC_DESC FROM STD_DIC
+        WHERE STD_AREA_ID = #{stdAreaId}
+        AND DIC_LOG_NM = #{searchWord}
+
+    </select>
+
+</mapper>

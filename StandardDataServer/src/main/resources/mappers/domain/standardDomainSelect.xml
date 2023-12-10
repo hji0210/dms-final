@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.standardData.mapper.StandardDataSearchMapper">
+    <resultMap id="selectDomain" type="com.dms.standarddataserver.standardData.dto.StandardDomainDTO">
+        <id property="domId" column="DOM_ID"/>
+        <result property="stdAreaId" column="STD_AREA_ID"/>
+        <result property="keyDomNm" column="KEY_DOM_NM"/>
+        <result property="domNm" column="DOM_NM"/>
+        <result property="domDesc" column="DOM_DESC"/>
+        <result property="domTypeCd" column="DOM_TYPE_CD"/>
+        <result property="domGrpId" column="DOM_GRP_ID"/>
+        <result property="dataTypeCd" column="DATA_TYPE_CD"/>
+        <result property="dataLen" column="DATA_LEN"/>
+        <result property="dataScale" column="DATA_SCALE"/>
+        <result property="dataMin" column="DATA_MIN"/>
+        <result property="dataMax" column="DATA_MAX"/>
+        <result property="avalStDt" column="AVAL_ST_DT"/>
+        <result property="avalEndDt" column="AVAL_END_DT"/>
+    </resultMap>
+
+    <select id="searchStandardDomainDTOByDomainId" parameterType="string" resultMap="selectDomain">
+        SELECT *
+        FROM "C##TY"."STD_DOM"
+        WHERE DOM_ID = #{domId}
+    </select>
+    <select id="searchStandardDomainDTOList" parameterType="string" resultMap="selectDomain">
+        SELECT *
+        FROM "C##TY"."STD_DOM"
+        WHERE STD_AREA_ID = #{standardAreaId}
+    </select>
+
+    <select id="searchStandardDomainDTOListByDomainType" parameterType="string" resultMap="selectDomain">
+        SELECT *
+        FROM "C##TY"."STD_DOM"
+        WHERE STD_AREA_ID = #{standardAreaId} AND DOM_TYPE_CD = #{domainType}
+    </select>
+
+    <select id="searchStandardDomainDTOListByDataType" parameterType="string" resultMap="selectDomain">
+        SELECT *
+        FROM "C##TY"."STD_DOM"
+        WHERE STD_AREA_ID = #{standardAreaId} AND DATA_TYPE_CD = #{dataType}
+    </select>
+
+    <select id="searchStandardDomainDTOListByDomainTypeAndDataType" parameterType="string" resultMap="selectDomain">
+        SELECT *
+        FROM "C##TY"."STD_DOM"
+        WHERE STD_AREA_ID = #{standardAreaId} AND DOM_TYPE_CD = #{domainType} AND DATA_TYPE_CD = #{dataType}
+    </select>
+
+</mapper>

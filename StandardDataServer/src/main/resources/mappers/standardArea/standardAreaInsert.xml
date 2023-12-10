@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- resources/mapper/StandardAreaInsertMapper.xml -->
+<mapper namespace="com.dms.standarddataserver.standardArea.mapper.StandardAreaInsertMapper">
+    <insert id="insert" parameterType="com.dms.standarddataserver.standardArea.dto.StandardAreaDTO">
+        INSERT INTO "C##TY"."STD_AREA" (
+        STD_AREA_ID,
+        STD_AREA_NM,
+        STD_AREA_DESC
+        )
+        VALUES (
+        #{standardAreaDTO.stdAreaId},
+        #{standardAreaDTO.stdAreaNm},
+        #{standardAreaDTO.stdAreaDesc}
+        )
+    </insert>
+</mapper>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dms.standarddataserver.synonym.mapper.SynonymSearchMapper">
+
+    <!--동의어 조회-->
+    <select id="selectList" parameterType="com.dms.standarddataserver.synonym.dto.SynonymDTO" resultType="com.dms.standarddataserver.synonym.dto.SynonymDTO">
+        SELECT
+        C1.DIC_ID as dicId,
+        C1.STD_AREA_ID as stdAreaId,
+        C1.STD_AREA_NM as stdAreaNm,
+        C1.ALT_DIC_ID as altDicId,
+        C1.DIC_LOG_NM as dicGbnCd,
+        CASE
+        WHEN C1.ALT_DIC_ID IS NOT NULL THEN (SELECT DIC_LOG_NM FROM STD_DIC WHERE DIC_ID = C1.ALT_DIC_ID AND ROWNUM = 1)
+        ELSE C1.DIC_LOG_NM
+        END as dicLogNm,
+        C1.DIC_PHY_NM as dicPhyNm,
+        C1.DIC_PHY_FLL_NM as dicPhyFLLNm,
+        C1.DIC_DESC as dicDesc,
+        C1.ENT_CLSS_YN as entClssYn,
+        C1.ATTR_CLSS_YN as attrClssYn,
+        C1.STANDARD_YN as standardYn,
+        C1.DOM_ID as domId,
+        C1.AVAL_ST_DT as avalStDt,
+        C1.AVAL_END_DT as avalEndDt,
+        C1.GRP_NO as grpNo
+        FROM    (
+        SELECT  B1.DIC_ID, B1.STD_AREA_ID, B1.STD_AREA_NM, B1.ALT_DIC_ID, B1.DIC_GBN_CD, B1.DIC_LOG_NM, B1.DIC_PHY_NM,
+        B1.DIC_PHY_FLL_NM, B1.DIC_DESC, B1.ENT_CLSS_YN, B1.ATTR_CLSS_YN, B1.STANDARD_YN,
+        B1.DOM_ID, B1.AVAL_ST_DT, B1.AVAL_END_DT,
+        B1.GRP_NO AS GRP_NO1, B2.GRP_NO AS GRP_NO2,
+        NVL2(B1.GRP_NO, B1.GRP_NO, B2.GRP_NO) AS GRP_NO
+        FROM    (
+        SELECT  A1.DIC_ID, A1.STD_AREA_ID, A1.STD_AREA_NM, A1.ALT_DIC_ID, A1.DIC_GBN_CD, A1.DIC_LOG_NM, A1.DIC_PHY_NM,
+        A1.DIC_PHY_FLL_NM, A1.DIC_DESC, A1.ENT_CLSS_YN, A1.ATTR_CLSS_YN, A1.STANDARD_YN,
+        A1.DOM_ID, A1.AVAL_ST_DT, A1.AVAL_END_DT,
+        A2.GRP_NO
+        FROM    (
+        -- Q1 : 검색어로 조회 예) 전체에서 책 검색
+        SELECT  SD.DIC_ID, SD.STD_AREA_ID, SA.STD_AREA_NM, SD.ALT_DIC_ID, SD.DIC_GBN_CD, SD.DIC_LOG_NM, SD.DIC_PHY_NM,
+        SD.DIC_PHY_FLL_NM, SD.DIC_DESC, SD.ENT_CLSS_YN, SD.ATTR_CLSS_YN, SD.STANDARD_YN,
+        SD.DOM_ID, SD.AVAL_ST_DT, SD.AVAL_END_DT
+        FROM    STD_DIC SD LEFT JOIN STD_AREA SA
+        ON SD.STD_AREA_ID = SA.STD_AREA_ID
+        WHERE   SD.DIC_GBN_CD = 'word'
+        AND     DIC_LOG_NM LIKE '%' || #{dicLogNm} || '%'
+        UNION
+        -- Q2 : 검색 결과가 표준단어일 경우, 표준단어에 속한 비표준 단어 추가
+        SELECT  T2.DIC_ID, T2.STD_AREA_ID, T3.STD_AREA_NM, T2.ALT_DIC_ID, T2.DIC_GBN_CD, T2.DIC_LOG_NM, T2.DIC_PHY_NM,
+        T2.DIC_PHY_FLL_NM, T2.DIC_DESC, T2.ENT_CLSS_YN, T2.ATTR_CLSS_YN, T2.STANDARD_YN,
+        T2.DOM_ID, T2.AVAL_ST_DT, T2.AVAL_END_DT
+        FROM    (
+        SELECT  DIC_ID
+        FROM    STD_DIC
+        WHERE   DIC_GBN_CD = 'word'
+        AND     DIC_LOG_NM LIKE '%' || #{dicLogNm} || '%'
+        AND     STANDARD_YN = 'Y'
+        ) T1,
+        (
+        SELECT  *
+        FROM    STD_DIC
+        WHERE   STANDARD_YN = 'N'
+        ) T2,
+        (
+        SELECT STD_AREA_NM
+        FROM STD_AREA
+        WHERE STD_AREA_ID = (SELECT STD_AREA_ID FROM STD_AREA WHERE STD_AREA_NM = #{stdAreaId} AND ROWNUM = 1)
+        ) T3
+        WHERE   T1.DIC_ID = T2.ALT_DIC_ID
+        UNION
+        -- Q3 : 검색 결과가 비표준단어일 경우 -> 비표준 단어가 속한 표준단어 추가
+        SELECT  T2.DIC_ID, T2.STD_AREA_ID, T3.STD_AREA_NM, T2.ALT_DIC_ID, T2.DIC_GBN_CD, T2.DIC_LOG_NM, T2.DIC_PHY_NM,
+        T2.DIC_PHY_FLL_NM, T2.DIC_DESC, T2.ENT_CLSS_YN, T2.ATTR_CLSS_YN, T2.STANDARD_YN,
+        T2.DOM_ID, T2.AVAL_ST_DT, T2.AVAL_END_DT
+        FROM    (
+        SELECT  ALT_DIC_ID
+        FROM    STD_DIC
+        WHERE   DIC_GBN_CD = 'word'
+        AND     DIC_LOG_NM LIKE '%' || #{dicLogNm} || '%'
+        AND     STANDARD_YN = 'N'
+        ) T1,
+        (
+        SELECT  *
+        FROM    STD_DIC
+        WHERE   STANDARD_YN = 'Y'
+        ) T2,
+        (
+        SELECT STD_AREA_NM
+        FROM STD_AREA
+        WHERE STD_AREA_ID = (SELECT STD_AREA_ID FROM STD_AREA WHERE STD_AREA_NM = #{stdAreaId} AND ROWNUM = 1)
+        ) T3
+        WHERE   T1.ALT_DIC_ID = T2.DIC_ID
+        UNION
+        -- Q4 : 검색 결과가 비표준단어일 경우 -> 비표준 단어와 동일한 표준단어를 갖는 다른 비표준단어 추가
+        SELECT  T2.DIC_ID, T2.STD_AREA_ID, T3.STD_AREA_NM, T2.ALT_DIC_ID, T2.DIC_GBN_CD, T2.DIC_LOG_NM, T2.DIC_PHY_NM,
+        T2.DIC_PHY_FLL_NM, T2.DIC_DESC, T2.ENT_CLSS_YN, T2.ATTR_CLSS_YN, T2.STANDARD_YN,
+        T2.DOM_ID, T2.AVAL_ST_DT, T2.AVAL_END_DT
+        FROM    (
+        SELECT  ALT_DIC_ID
+        FROM    STD_DIC
+        WHERE   DIC_GBN_CD = 'word'
+        AND     DIC_LOG_NM LIKE '%' || #{dicLogNm} || '%'
+        AND     STANDARD_YN = 'N'
+        ) T1,
+        (
+        SELECT  *
+        FROM    STD_DIC
+        WHERE   STANDARD_YN = 'N'
+        ) T2,
+        (
+        SELECT STD_AREA_NM
+        FROM STD_AREA
+        WHERE STD_AREA_ID = (SELECT STD_AREA_ID FROM STD_AREA WHERE STD_AREA_NM = #{stdAreaId} AND ROWNUM = 1)
+        ) T3
+        WHERE   T1.ALT_DIC_ID = T2.ALT_DIC_ID
+        ORDER BY DIC_PHY_FLL_NM ASC, STANDARD_YN DESC
+        ) A1,
+        (
+        SELECT  ROWNUM AS GRP_NO, T1.DIC_ID, T1.DIC_LOG_NM
+        FROM    (
+        SELECT  DIC_ID, DIC_LOG_NM
+        FROM    STD_DIC
+        WHERE   STANDARD_YN = 'Y'
+        ORDER BY DIC_LOG_NM) T1
+        ) A2
+        WHERE   A1.DIC_ID = A2.DIC_ID(+)
+        ) B1,
+        (
+        SELECT  ROWNUM AS GRP_NO, T1.DIC_ID, T1.DIC_LOG_NM
+        FROM    (
+        SELECT  DIC_ID, DIC_LOG_NM
+        FROM    STD_DIC
+        WHERE   STANDARD_YN = 'Y'
+        ORDER BY DIC_LOG_NM) T1
+        ) B2
+        WHERE  B1.ALT_DIC_ID = B2.DIC_ID(+)
+        ) C1
+        WHERE C1.STD_AREA_ID = (SELECT STD_AREA_ID FROM STD_AREA WHERE STD_AREA_NM = #{stdAreaId} AND ROWNUM = 1)
+        ORDER BY C1.GRP_NO, STANDARD_YN DESC
+    </select>
+
+</mapper>

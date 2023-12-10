@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- resources/mapper/StandardAreaInsertMapper.xml -->
+<mapper namespace="com.dms.standarddataserver.standardArea.mapper.StandardAreaUpdateMapper">
+    <update id="update" parameterType="com.dms.standarddataserver.standardArea.dto.StandardAreaDTO">
+        UPDATE "C##TY"."STD_AREA"
+        SET STD_AREA_NM = #{standardAreaDTO.stdAreaNm},
+        STD_AREA_DESC = #{standardAreaDTO.stdAreaDesc}
+        WHERE STD_AREA_NM = #{standardAreaDTO.message}
+    </update>
+</mapper>
